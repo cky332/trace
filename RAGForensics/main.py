@@ -85,7 +85,7 @@ def evaluate(args):
     for item in data:
         question = item.get("question", "")
         correct_answer = item.get("correct_answer", "")
-        targeted_answer = item.get("target_answer", "")
+        rag_response = item.get("RAG_response", "")
         context_texts = item.get("context_texts", [])
         topk_labels = item.get("context_labels", [])
         
@@ -104,7 +104,7 @@ def evaluate(args):
         poison_count = 0
         
         for i, context in enumerate(context_texts):
-            is_poison, res = query_poison(generator, question, targeted_answer, context, topk_labels[i])
+            is_poison, res = query_poison(generator, question, rag_response, context, topk_labels[i])
             result_log.append(res)
             
             ground_truth = topk_labels[i]
