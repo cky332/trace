@@ -70,6 +70,31 @@ python RAGForensics/main.py \
     --test_version "v1" \
 ```
 
+### MemoryForensics (Agent Memory Traceback)
+
+`MemoryForensics` adapts the black-box RAGForensics method to **agent memory poisoning traceback**: given an event where an agent produced a wrong free-text output after recalling a set of memory entries, it traces which recalled memory entries are responsible. It uses DeepSeek-V3.2 via the SiliconFlow OpenAI-compatible API.
+
+```bash
+export SILICONFLOW_API_KEY="YOUR_SILICONFLOW_API_KEY"
+
+# 1) Synthesize labeled poisoned-memory events from seed scenarios
+python MemoryForensics/generate_events.py --scenario demo --num_poison 2 --num_clean 3
+
+# 2) Trace responsibility and compute DACC / FPR / FNR
+python MemoryForensics/main.py --scenario demo
+```
+
+Each event follows the schema `{task, agent_output, memory_texts, memory_labels, ...}` where `memory_labels[i] == true` marks a poisoned memory. Results are written to `result/<scenario>/MemoryForensics/<test_version>/`.
+
+For a zero-cost end-to-end smoke test (no API calls), reframe an existing RAG sample into the memory schema:
+
+```bash
+python MemoryForensics/generate_events.py \
+    --reframe_rag attack_feedback/PRAGB/k5_m5_e5_gpt-4o-mini.json \
+    --out memory_feedback/reframed/events.json
+python MemoryForensics/main.py --scenario reframed --limit 3 --max_memories 8
+```
+
 ## Citation
 
 The citations for our attribution framework:
